@@ -36,6 +36,13 @@ COPY --chown=node:node --from=deps /app/node_modules ./node_modules
 # data/ guarda la base SQLite generada por el seed y uploads/ los avatares.
 RUN mkdir -p /app/data /app/uploads && chown -R node:node /app/data /app/uploads
 
+# Hardening: eliminar npm, npx y yarn del runtime. La aplicacion se ejecuta
+# solo con node, asi que estas herramientas no se necesitan. Quitarlas reduce
+# la superficie de ataque y elimina los CVE de las dependencias internas de npm
+# (cross-spawn, glob, minimatch, tar).
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx \
+    /opt/yarn-* /usr/local/bin/yarn /usr/local/bin/yarnpkg 2>/dev/null || true
+
 # La imagen oficial de Node trae el usuario sin privilegios "node" (uid 1000).
 # Ejecutamos el proceso con ese usuario en lugar de root.
 USER node
