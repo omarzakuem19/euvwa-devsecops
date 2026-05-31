@@ -1,0 +1,32 @@
+<%- include('../partials/header') %>
+<%- include('../partials/nav') %>
+
+<main class="container">
+  <h2><%= title %></h2>
+
+  <% if (forbidden) { %>
+    <p class="error">
+      No tienes permiso para ver el usuario con id <code><%= requestedId %></code>.
+    </p>
+    <p class="hint">
+      Solo puedes consultar tu propio perfil. Los administradores pueden
+      consultar a cualquier usuario.
+    </p>
+  <% } else if (!user) { %>
+    <p class="hint">No existe ningún usuario con id <code><%= requestedId %></code>.</p>
+  <% } else { %>
+    <ul>
+      <li>ID: <%= user.id %></li>
+      <li>Usuario: <%= user.username %></li>
+      <li>Email: <%= user.email %></li>
+      <li>Rol: <%= user.role %></li>
+    </ul>
+
+    <% if (user.avatar_path) { %>
+      <h3>Avatar</h3>
+      <p><img src="<%= user.avatar_path %>" alt="avatar" class="avatar"></p>
+    <% } %>
+  <% } %>
+</main>
+
+<%- include('../partials/footer') %>

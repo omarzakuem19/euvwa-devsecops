@@ -1,0 +1,15 @@
+<%- include('../partials/header') %>
+<%- include('../partials/nav') %>
+
+<main class="container">
+  <h2>Debug</h2>
+  <p class="hint">
+    Página de diagnóstico restringida a administradores. Muestra solo
+    información no sensible sobre la aplicación.
+  </p>
+
+  <h3>Información de la aplicación</h3>
+  <pre class="console-output"><%= JSON.stringify(info, null, 2) %></pre>
+</main>
+
+<%- include('../partials/footer') %>

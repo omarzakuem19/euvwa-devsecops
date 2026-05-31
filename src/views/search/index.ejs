@@ -1,0 +1,37 @@
+<%- include('../partials/header') %>
+<%- include('../partials/nav') %>
+
+<main class="container">
+  <h2>Buscador</h2>
+  <p>Busca módulos disponibles en euVWA.</p>
+
+  <form method="GET" action="/search" class="form">
+    <label>
+      Texto a buscar
+      <input type="text" name="q" value="<%= q %>" autocomplete="off">
+    </label>
+    <button type="submit">Buscar</button>
+  </form>
+
+  <% if (searched) { %>
+    <section class="search-results">
+      <!-- Render escapado: <%%= q %%> convierte < en &lt; y > en &gt;,
+           así un payload con <script> aparece como texto y no se ejecuta. -->
+      <p>Resultados para: <%= q %></p>
+
+      <% if (results.length === 0) { %>
+        <p class="hint">No se han encontrado coincidencias.</p>
+      <% } else { %>
+        <ul>
+          <% results.forEach(item => { %>
+            <li>
+              <strong><%= item.name %></strong>: <%= item.description %>
+            </li>
+          <% }); %>
+        </ul>
+      <% } %>
+    </section>
+  <% } %>
+</main>
+
+<%- include('../partials/footer') %>

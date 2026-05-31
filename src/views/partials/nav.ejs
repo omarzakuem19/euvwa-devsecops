@@ -1,0 +1,18 @@
+<nav class="site-nav">
+  <ul>
+    <li><a href="/">Inicio</a></li>
+    <li><a href="/search">Buscador</a></li>
+    <li><a href="/guestbook">Libro de visitas</a></li>
+    <li><a href="/tools/ping">Ping</a></li>
+    <% if (session && session.userId) { %>
+      <li><a href="/profile">Perfil</a></li>
+      <li><a href="/users/<%= session.userId %>">Mi usuario</a></li>
+      <% if (session.role === 'admin') { %>
+        <li><a href="/debug">Debug</a></li>
+      <% } %>
+      <li><a href="/logout">Logout (<%= session.username %>)</a></li>
+    <% } else { %>
+      <li><a href="/login">Login</a></li>
+    <% } %>
+  </ul>
+</nav>

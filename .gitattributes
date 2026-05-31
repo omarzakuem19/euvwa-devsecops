@@ -1,0 +1,11 @@
+# Normaliza los finales de linea a LF para que los scripts del pipeline
+# funcionen correctamente en los runners Linux de GitHub Actions.
+* text=auto eol=lf
+
+# Archivos binarios que no se deben tocar.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.sqlite binary

@@ -1,0 +1,31 @@
+<%- include('partials/header') %>
+<%- include('partials/nav') %>
+
+<main class="container">
+  <h2><%= title %></h2>
+  <p><%= message %></p>
+
+  <section>
+    <h3>Sobre el proyecto</h3>
+    <p>
+      euVWA es un laboratorio local pensado para la asignatura de
+      Desarrollo Seguro de Web y Apps. Reproduce la idea de DVWA en
+      Node.js + Express y se mantiene en dos ramas paralelas para poder
+      comparar el código vulnerable con su versión corregida.
+    </p>
+    <p>
+      Estás en <strong>main-secure</strong>. Esta rama implementa las
+      mismas funcionalidades que <strong>main-vulnerable</strong>, pero
+      aplicando buenas prácticas: consultas parametrizadas, escape de
+      salida, <code>execFile</code> con argumentos validados, validación
+      y renombrado de archivos subidos, <code>bcrypt</code>, sesiones
+      endurecidas, control de acceso por rol y <code>helmet</code>.
+    </p>
+    <p>
+      Usa el menú superior para entrar a cada módulo. La tabla
+      comparativa con cada corrección está en el README.
+    </p>
+  </section>
+</main>
+
+<%- include('partials/footer') %>

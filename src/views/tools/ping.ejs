@@ -1,0 +1,26 @@
+<%- include('../partials/header') %>
+<%- include('../partials/nav') %>
+
+<main class="container">
+  <h2>Herramienta de ping</h2>
+  <p>Comprueba si un host responde haciendo ping desde el servidor.</p>
+
+  <form method="GET" action="/tools/ping" class="form">
+    <label>
+      Host o IP
+      <input type="text" name="host" value="<%= host %>" autocomplete="off" placeholder="127.0.0.1">
+    </label>
+    <button type="submit">Hacer ping</button>
+  </form>
+
+  <% if (error) { %>
+    <p class="error"><%= error %></p>
+  <% } %>
+
+  <% if (output !== null) { %>
+    <h3>Salida</h3>
+    <pre class="console-output"><%= output %></pre>
+  <% } %>
+</main>
+
+<%- include('../partials/footer') %>

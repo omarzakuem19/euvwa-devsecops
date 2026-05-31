@@ -1,0 +1,289 @@
+name: DevSecOps Pipeline (rama segura)
+
+# Este workflow vive en la rama main-secure.
+# Ejecuta todos los controles de seguridad, los supera y publica la imagen en GHCR.
+
+on:
+  push:
+    branches: [main-secure]
+  pull_request:
+    branches: [main-secure]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+  security-events: write
+
+env:
+  NODE_VERSION: "20"
+  IMAGE_LOCAL: "euvwa-devsecops:ci"
+  TRIVY_SEVERITY: "CRITICAL,HIGH"
+
+jobs:
+  # 1. SAST: analisis estatico del codigo con Semgrep y ESLint
+  sast:
+    name: SAST (Semgrep y ESLint)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Instalar ESLint y plugin de seguridad
+        run: npm install --no-save eslint@8 eslint-plugin-security@1
+
+      - name: ESLint (genera informe)
+        id: eslint
+        run: |
+          mkdir -p reports
+          npx eslint "src/**/*.js" -f json -o reports/eslint-report.json
+        continue-on-error: true
+
+      - name: Configurar Python para Semgrep
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar Semgrep
+        run: pip install semgrep
+
+      - name: Semgrep (genera SARIF)
+        id: semgrep
+        run: |
+          mkdir -p reports
+          semgrep scan \
+            --config p/javascript \
+            --config p/nodejsscan \
+            --config p/owasp-top-ten \
+            --config p/expressjs \
+            --error \
+            --sarif --output reports/semgrep.sarif \
+            --metrics off
+        continue-on-error: true
+
+      - name: Subir informes SAST
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sast-reports-secure
+          path: reports/
+
+      - name: Subir SARIF a Code Scanning
+        if: always()
+        continue-on-error: true
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: reports/semgrep.sarif
+
+      - name: Gate SAST
+        run: |
+          echo "Resultado ESLint: ${{ steps.eslint.outcome }}"
+          echo "Resultado Semgrep: ${{ steps.semgrep.outcome }}"
+          if [ "${{ steps.eslint.outcome }}" != "success" ] || [ "${{ steps.semgrep.outcome }}" != "success" ]; then
+            echo "::error::El SAST ha encontrado hallazgos de seguridad."
+            exit 1
+          fi
+          echo "SAST sin hallazgos relevantes."
+
+  # 2. SCA y SBOM: dependencias e inventario con Trivy
+  sca-sbom:
+    name: Dependencias y SBOM (Trivy)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Instalar Trivy
+        run: curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+
+      - name: Generar SBOM en formato CycloneDX
+        run: |
+          mkdir -p reports
+          trivy fs --format cyclonedx --output reports/sbom.cdx.json .
+
+      - name: Escanear dependencias (informe legible)
+        id: deps
+        run: |
+          trivy fs --scanners vuln --severity ${{ env.TRIVY_SEVERITY }} --ignore-unfixed --exit-code 1 --format table --output reports/trivy-deps.txt .
+        continue-on-error: true
+
+      - name: Escanear dependencias (informe JSON)
+        run: |
+          trivy fs --scanners vuln --severity ${{ env.TRIVY_SEVERITY }} --ignore-unfixed --format json --output reports/trivy-deps.json .
+        continue-on-error: true
+
+      - name: Subir SBOM e informes de dependencias
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sca-sbom-secure
+          path: reports/
+
+      - name: Gate dependencias
+        run: |
+          if [ "${{ steps.deps.outcome }}" != "success" ]; then
+            echo "::error::Trivy ha encontrado dependencias con vulnerabilidades CRITICAL o HIGH con parche."
+            exit 1
+          fi
+          echo "Dependencias sin vulnerabilidades CRITICAL o HIGH con parche."
+
+  # 3. Build de la imagen Docker endurecida
+  build:
+    name: Construir imagen Docker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Construir imagen
+        run: docker build -t ${{ env.IMAGE_LOCAL }} .
+      - name: Exportar imagen como artefacto
+        run: docker save ${{ env.IMAGE_LOCAL }} -o image.tar
+      - name: Subir imagen para los jobs siguientes
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image-secure
+          path: image.tar
+          retention-days: 1
+
+  # 4. Escaneo de la imagen Docker con Trivy
+  image-scan:
+    name: Escaneo de imagen (Trivy)
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Descargar imagen
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image-secure
+      - name: Cargar imagen en Docker
+        run: docker load -i image.tar
+      - name: Instalar Trivy
+        run: curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+      - name: Escanear imagen (informe legible)
+        id: imgscan
+        run: |
+          mkdir -p reports
+          trivy image --severity ${{ env.TRIVY_SEVERITY }} --ignore-unfixed --exit-code 1 --format table --output reports/trivy-image.txt ${{ env.IMAGE_LOCAL }}
+        continue-on-error: true
+      - name: Escanear imagen (informe JSON)
+        run: |
+          trivy image --severity ${{ env.TRIVY_SEVERITY }} --ignore-unfixed --format json --output reports/trivy-image.json ${{ env.IMAGE_LOCAL }}
+        continue-on-error: true
+      - name: Subir informes de imagen
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-scan-secure
+          path: reports/
+      - name: Gate imagen
+        run: |
+          if [ "${{ steps.imgscan.outcome }}" != "success" ]; then
+            echo "::error::La imagen tiene vulnerabilidades CRITICAL o HIGH con parche."
+            exit 1
+          fi
+          echo "Imagen sin vulnerabilidades CRITICAL o HIGH con parche."
+
+  # 5. DAST con OWASP ZAP baseline sobre el contenedor
+  dast:
+    name: DAST (OWASP ZAP baseline)
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Descargar imagen
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image-secure
+      - name: Cargar imagen en Docker
+        run: docker load -i image.tar
+      - name: Levantar la aplicacion
+        run: |
+          docker network create euvwa-net
+          SECRET=$(openssl rand -hex 16)
+          docker run -d --name euvwa --network euvwa-net \
+            -e SESSION_SECRET=$SECRET \
+            -p 3000:3000 ${{ env.IMAGE_LOCAL }}
+      - name: Esperar a que la aplicacion responda
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:3000/ >/dev/null; then
+              echo "Aplicacion disponible."
+              exit 0
+            fi
+            echo "Esperando a la aplicacion ($i)..."
+            sleep 2
+          done
+          echo "La aplicacion no respondio a tiempo."
+          docker logs euvwa || true
+          exit 1
+      - name: Ejecutar ZAP Baseline
+        id: zap
+        run: |
+          mkdir -p reports && chmod 777 reports
+          docker run --network euvwa-net \
+            -v ${{ github.workspace }}/reports:/zap/wrk:rw \
+            ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
+            -t http://euvwa:3000 \
+            -r zap-report.html -J zap-report.json -w zap-report.md -I
+        continue-on-error: true
+      - name: Subir informes DAST
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dast-reports-secure
+          path: reports/
+      - name: Gate DAST
+        run: |
+          if [ ! -f reports/zap-report.json ]; then
+            echo "::error::No se genero el informe de ZAP."
+            exit 1
+          fi
+          HIGH=$(jq '[.site[]?.alerts[]? | select((.riskcode|tonumber) >= 3)] | length' reports/zap-report.json)
+          MED=$(jq '[.site[]?.alerts[]? | select((.riskcode|tonumber) == 2)] | length' reports/zap-report.json)
+          echo "Alertas de riesgo alto: $HIGH"
+          echo "Alertas de riesgo medio (informativo): $MED"
+          if [ "$HIGH" -gt 0 ]; then
+            echo "::error::El DAST ha detectado alertas de riesgo alto."
+            exit 1
+          fi
+          echo "DAST sin alertas de riesgo alto."
+      - name: Detener la aplicacion
+        if: always()
+        run: |
+          docker rm -f euvwa || true
+          docker network rm euvwa-net || true
+
+  # 6. Publicar la imagen en GHCR (solo si todo lo anterior pasa)
+  publish:
+    name: Publicar imagen en GHCR
+    runs-on: ubuntu-latest
+    needs: [build, sast, sca-sbom, image-scan, dast]
+    if: github.event_name != 'pull_request'
+    steps:
+      - name: Descargar imagen
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image-secure
+      - name: Cargar imagen en Docker
+        run: docker load -i image.tar
+      - name: Login en GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Etiquetar y publicar
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          IMG=ghcr.io/$OWNER/euvwa-devsecops
+          docker tag ${{ env.IMAGE_LOCAL }} $IMG:main-secure
+          docker tag ${{ env.IMAGE_LOCAL }} $IMG:${{ github.sha }}
+          docker push $IMG:main-secure
+          docker push $IMG:${{ github.sha }}
+          echo "Imagen publicada: $IMG:main-secure"
