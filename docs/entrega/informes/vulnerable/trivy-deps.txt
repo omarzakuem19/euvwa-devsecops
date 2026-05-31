@@ -1,0 +1,71 @@
+
+Report Summary
+
+┌───────────────────┬──────┬─────────────────┐
+│      Target       │ Type │ Vulnerabilities │
+├───────────────────┼──────┼─────────────────┤
+│ package-lock.json │ npm  │       12        │
+└───────────────────┴──────┴─────────────────┘
+Legend:
+- '-': Not scanned
+- '0': Clean (no security findings detected)
+
+
+For OSS Maintainers: VEX Notice
+--------------------------------
+If you're an OSS maintainer and Trivy has detected vulnerabilities in your project that you believe are not actually exploitable, consider issuing a VEX (Vulnerability Exploitability eXchange) statement.
+VEX allows you to communicate the actual status of vulnerabilities in your project, improving security transparency and reducing false positives for your users.
+Learn more and start using VEX: https://trivy.dev/docs/v0.70/guide/supply-chain/vex/repo#publishing-vex-documents
+
+To disable this notice, set the TRIVY_DISABLE_VEX_NOTICE environment variable.
+
+
+package-lock.json (npm)
+=======================
+Total: 12 (HIGH: 11, CRITICAL: 1)
+
+┌─────────┬────────────────┬──────────┬────────┬───────────────────┬───────────────┬──────────────────────────────────────────────────────────────┐
+│ Library │ Vulnerability  │ Severity │ Status │ Installed Version │ Fixed Version │                            Title                             │
+├─────────┼────────────────┼──────────┼────────┼───────────────────┼───────────────┼──────────────────────────────────────────────────────────────┤
+│ lodash  │ CVE-2019-10744 │ CRITICAL │ fixed  │ 4.17.4            │ 4.17.12       │ nodejs-lodash: prototype pollution in defaultsDeep function  │
+│         │                │          │        │                   │               │ leading to modifying properties                              │
+│         │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2019-10744                   │
+│         ├────────────────┼──────────┤        │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│         │ CVE-2018-16487 │ HIGH     │        │                   │ >=4.17.11     │ lodash: Prototype pollution in utilities function            │
+│         │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2018-16487                   │
+│         ├────────────────┤          │        │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│         │ CVE-2020-8203  │          │        │                   │ 4.17.19       │ nodejs-lodash: prototype pollution in zipObjectDeep function │
+│         │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2020-8203                    │
+│         ├────────────────┤          │        │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│         │ CVE-2021-23337 │          │        │                   │ 4.17.21       │ nodejs-lodash: command injection via template                │
+│         │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2021-23337                   │
+│         ├────────────────┤          │        │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│         │ CVE-2026-4800  │          │        │                   │ 4.18.0        │ lodash: lodash: Arbitrary code execution via untrusted input │
+│         │                │          │        │                   │               │ in template imports                                          │
+│         │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2026-4800                    │
+├─────────┼────────────────┤          │        ├───────────────────┼───────────────┼──────────────────────────────────────────────────────────────┤
+│ multer  │ CVE-2025-47935 │          │        │ 1.4.5-lts.2       │ 2.0.0         │ Multer vulnerable to Denial of Service via memory leaks from │
+│         │                │          │        │                   │               │ unclosed streams...                                          │
+│         │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2025-47935                   │
+│         ├────────────────┤          │        │                   │               ├──────────────────────────────────────────────────────────────┤
+│         │ CVE-2025-47944 │          │        │                   │               │ Multer vulnerable to Denial of Service from maliciously      │
+│         │                │          │        │                   │               │ crafted requests                                             │
+│         │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2025-47944                   │
+│         ├────────────────┤          │        │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│         │ CVE-2025-48997 │          │        │                   │ 2.0.1         │ multer: Multer vulnerable to Denial of Service via unhandled │
+│         │                │          │        │                   │               │ exception                                                    │
+│         │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2025-48997                   │
+│         ├────────────────┤          │        │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│         │ CVE-2025-7338  │          │        │                   │ 2.0.2         │ multer: Multer Denial of Service                             │
+│         │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2025-7338                    │
+│         ├────────────────┤          │        │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│         │ CVE-2026-2359  │          │        │                   │ 2.1.0         │ multer: Multer: Denial of Service via dropped file upload    │
+│         │                │          │        │                   │               │ connections                                                  │
+│         │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2026-2359                    │
+│         ├────────────────┤          │        │                   │               ├──────────────────────────────────────────────────────────────┤
+│         │ CVE-2026-3304  │          │        │                   │               │ multer: Multer: Denial of Service via malformed requests     │
+│         │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2026-3304                    │
+│         ├────────────────┤          │        │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│         │ CVE-2026-3520  │          │        │                   │ 2.1.1         │ multer: Multer: Denial of Service via malformed requests     │
+│         │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2026-3520                    │
+└─────────┴────────────────┴──────────┴────────┴───────────────────┴───────────────┴──────────────────────────────────────────────────────────────┘
