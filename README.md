@@ -1,7 +1,5 @@
 # euVWA - Pipeline DevSecOps (Actividad 2)
 
-> **Aviso importante.** euVWA es una aplicacion **deliberadamente vulnerable**. La rama `main-vulnerable` contiene fallos de seguridad reales y explotables. No la despliegues en produccion ni la expongas a internet. Usala solo en local o en entornos de laboratorio controlados.
-
 Autor: Oussama Marzak Faroit. Universidad Europea. Asignatura: Desarrollo Seguro de Web y Apps.
 
 ---
