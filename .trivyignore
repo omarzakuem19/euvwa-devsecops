@@ -1,0 +1,11 @@
+# Archivo de excepciones de Trivy.
+#
+# Aqui se documentan los CVE de dependencias base que se aceptan de forma
+# justificada y temporal despues de analizarlos en la primera ejecucion del
+# pipeline. Cada linea debe llevar el identificador del CVE y un comentario
+# que explique por que se acepta y cuando se revisara.
+#
+# Importante: la dependencia vulnerable introducida a proposito en la rama
+# main-vulnerable NUNCA se anade aqui, para que el pipeline la siga bloqueando.
+#
+# (Se completara tras la primera ejecucion real del pipeline.)

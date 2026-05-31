@@ -1,0 +1,32 @@
+<%- include('../partials/header') %>
+<%- include('../partials/nav') %>
+
+<main class="container">
+  <h2>Perfil</h2>
+  <p>Sesión iniciada como <strong><%= user.username %></strong>.</p>
+  <ul>
+    <li>ID: <%= user.id %></li>
+    <li>Email: <%= user.email %></li>
+    <li>Rol: <%= user.role %></li>
+  </ul>
+
+  <h3>Avatar</h3>
+  <% if (user.avatar_path) { %>
+    <p><img src="<%= user.avatar_path %>" alt="avatar" class="avatar"></p>
+    <p class="hint">Ruta pública: <a href="<%= user.avatar_path %>"><%= user.avatar_path %></a></p>
+  <% } else { %>
+    <p class="hint">Aún no has subido un avatar.</p>
+  <% } %>
+
+  <form method="POST" action="/profile/avatar" enctype="multipart/form-data" class="form">
+    <label>
+      Archivo
+      <input type="file" name="avatar" required>
+    </label>
+    <button type="submit">Subir</button>
+  </form>
+
+  <p style="margin-top:1.5rem;"><a href="/logout">Cerrar sesión</a></p>
+</main>
+
+<%- include('../partials/footer') %>

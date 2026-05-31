@@ -1,0 +1,17 @@
+<%- include('partials/header') %>
+<%- include('partials/nav') %>
+
+<main class="container">
+  <h2>Error 500</h2>
+  <p><strong><%= error.message %></strong></p>
+
+  <h3>Stack trace</h3>
+  <pre class="console-output"><%= error.stack %></pre>
+
+  <p class="hint">
+    Mostrar el stack trace al usuario es Security Misconfiguration.
+    En main-secure se devolverá un mensaje genérico.
+  </p>
+</main>
+
+<%- include('partials/footer') %>

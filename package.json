@@ -1,0 +1,25 @@
+{
+  "name": "euvwa",
+  "version": "0.1.0",
+  "private": true,
+  "description": "euVWA - aplicación web para la asignatura de Desarrollo Seguro de Web y Apps (rama vulnerable / rama segura).",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "seed": "node src/db/seed.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "lodash": "4.17.4",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "sql.js": "^1.10.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}

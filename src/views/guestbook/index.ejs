@@ -1,0 +1,42 @@
+<%- include('../partials/header') %>
+<%- include('../partials/nav') %>
+
+<main class="container">
+  <h2>Libro de visitas</h2>
+  <p>Deja un mensaje. Los comentarios quedan guardados y son visibles para todos los visitantes.</p>
+
+  <form method="POST" action="/guestbook" class="form">
+    <label>
+      Nombre
+      <input type="text" name="name" autocomplete="off" placeholder="Anónimo">
+    </label>
+    <label>
+      Comentario
+      <textarea name="content" rows="3" required></textarea>
+    </label>
+    <button type="submit">Publicar</button>
+  </form>
+
+  <section class="comments">
+    <h3>Comentarios</h3>
+
+    <% if (comments.length === 0) { %>
+      <p class="hint">Aún no hay comentarios.</p>
+    <% } else { %>
+      <ul class="comment-list">
+        <% comments.forEach(comment => { %>
+          <li class="comment">
+            <p class="comment-meta">
+              <strong><%= comment.name %></strong>
+              <span><%= comment.created_at %></span>
+            </p>
+            <!-- VULNERABLE: el contenido se imprime sin escape (Stored XSS) -->
+            <div class="comment-body"><%- comment.content %></div>
+          </li>
+        <% }); %>
+      </ul>
+    <% } %>
+  </section>
+</main>
+
+<%- include('../partials/footer') %>

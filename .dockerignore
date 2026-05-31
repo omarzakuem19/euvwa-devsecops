@@ -1,0 +1,17 @@
+# Todo lo que no debe entrar en el contexto de build ni en la imagen final.
+.git
+.github
+.gitignore
+node_modules
+npm-debug.log*
+data
+uploads
+docs
+*.md
+.env
+.env.*
+.dockerignore
+Dockerfile
+.semgrep.yml
+.eslintrc.json
+.trivyignore

@@ -1,0 +1,26 @@
+<%- include('../partials/header') %>
+<%- include('../partials/nav') %>
+
+<main class="container">
+  <h2>Debug</h2>
+  <p class="hint">
+    Página de diagnóstico de laboratorio. No debería existir en producción.
+  </p>
+
+  <h3>Datos del usuario (incluida la contraseña en claro)</h3>
+  <pre class="console-output"><%= JSON.stringify(user, null, 2) %></pre>
+
+  <h3>Sesión actual</h3>
+  <p>Session ID: <code><%= sessionId %></code></p>
+  <p>Token de sesión simulado: <code><%= fakeSessionToken %></code></p>
+  <pre class="console-output"><%= JSON.stringify(sessionData, null, 2) %></pre>
+
+  <h3>Información de la aplicación</h3>
+  <pre class="console-output"><%= JSON.stringify(appInfo, null, 2) %></pre>
+
+  <p class="hint">
+    En main-secure esta ruta se elimina y el perfil expone solo username y avatar.
+  </p>
+</main>
+
+<%- include('../partials/footer') %>

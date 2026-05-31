@@ -1,0 +1,29 @@
+<%- include('../partials/header') %>
+<%- include('../partials/nav') %>
+
+<main class="container">
+  <h2>Usuario</h2>
+
+  <% if (!user) { %>
+    <p class="hint">No existe ningún usuario con id <code><%= requestedId %></code>.</p>
+  <% } else { %>
+    <ul>
+      <li>ID: <%= user.id %></li>
+      <li>Usuario: <%= user.username %></li>
+      <li>Email: <%= user.email %></li>
+      <li>Rol: <%= user.role %></li>
+    </ul>
+
+    <% if (user.avatar_path) { %>
+      <h3>Avatar</h3>
+      <p><img src="<%= user.avatar_path %>" alt="avatar" class="avatar"></p>
+    <% } %>
+  <% } %>
+
+  <p class="hint">
+    Cambia el id en la URL para ver datos de otro usuario:
+    <a href="/users/1">/users/1</a>, <a href="/users/2">/users/2</a>...
+  </p>
+</main>
+
+<%- include('../partials/footer') %>
